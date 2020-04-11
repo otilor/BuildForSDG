@@ -21,18 +21,23 @@ class estimator {
   
   public function covid19ImpactEstimator($data)
   {
-    
+    $currentlyInfected = $data["reportedCases"] * 10;
+    $factor = 9;
     $data = [
       "data" => $data, // input data
       "impact" => [
-        "currentlyInfected" => $data->reportedCases * 10,
+        "currentlyInfected" => $currentlyInfected,
+        "infectionsByRequestedTime" => $currentlyInfected * 2 ^ $factor,
       ], // best case
       "severeImpact" => [
-        "currentlyInfected" => $data->reportedCases * 50,
+        $currentlyInfectedWorstCase = $data["reportedCases"] * 50,
+        "currentlyInfected" => $currentlyInfectedWorstCase,
+        "infectionsByRequestedTime" => $currentlyInfectedWorstCase * 2 ^ $factor,
       ] // worst case
     ];
     // return $data->reportedCases;
-    return  json_decode(json_encode($data));
+    $data = json_encode($data);
+    return $data;
   }
 
   /**
@@ -55,7 +60,8 @@ class estimator {
         "population" => 66622705,
         "totalHospitalBeds" => 1380614
       ];
-      return json_decode(json_encode($data));
+//      return json_decode(json_encode($data));
+      return $data;
     }
 }
 
@@ -67,4 +73,5 @@ class estimator {
 $new_estimation = new estimator;
 $data = $new_estimation->covidData();
 $new = $new_estimation->covid19ImpactEstimator($data);
-var_dump($new);
+
+echo $new;
