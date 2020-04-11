@@ -68,35 +68,20 @@ class estimator {
   /**
    * Gives out the Data.
    */
-  public function covidData()
-    {
-      
-      $region = "";
-      $data = [
-        "region" =>  [
-          "name" => "Africa",
-          "avgAge" => 19.7,
-          "avgDailyIncomeInUSD" => 5,
-          "avgDailyIncomePopulation" => 0.71,
-        ],
-        "periodType" => "days",
-        "timeToElapse" => 58,
-        "reportedCases" => 674,
-        "population" => 66622705,
-        "totalHospitalBeds" => 1380614
-      ];
-//      return json_decode(json_encode($data));
-      return $data;
-    }
 }
 
 
-//echo covidData()->region->name;
 
 
 // For errors
+if ($_SERVER["CONTENT_TYPE"] != 'application/json')
+{
+  header($_SERVER["SERVER_PROTOCOL"] . "500 Internal Server Error");
+  exit();
+}
 $new_estimation = new estimator;
-$data = $new_estimation->covidData();
-$new = $new_estimation->covid19ImpactEstimator($data);
+$content = trim(file_get_contents("php://input"));
+$decoded = json_decode($content, true);
+header('Content-Type: application/json');
 
-echo $new;
+echo $new_estimation->covid19ImpactEstimator($decoded);
