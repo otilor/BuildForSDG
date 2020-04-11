@@ -16,18 +16,39 @@ class estimator {
   
   public function covid19ImpactEstimator($data)
   {
-    $currentlyInfected = $data["reportedCases"] * 10;
+    
+    $totalBeds = $data["totalHospitalBeds"];
+    $takenBeds = $totalBeds * 0.65;
+    $availableBeds = $totalBeds - $takenBeds;
+    
     $factor = 9;
+    $currentlyInfected = $data["reportedCases"] * 10;
+    $infectionsByRequestedTime = $currentlyInfected * 2 ^ $factor;
+    $severeCasesByRequestedTime = intval(0.15 * $infectionsByRequestedTime);
+    
+    
+    $hospitalBedsByRequestedTime = intval($availableBeds - $severeCasesByRequestedTime);
+    
+
+    $currentlyInfectedWorstCase = $data["reportedCases"] * 50;
+    $infectionsByRequestedTimeWorstCase = $currentlyInfectedWorstCase * 2 ^ $factor;
+    $severeCasesByRequestedTimeWorstCase = intval(0.15 * $infectionsByRequestedTimeWorstCase);
+    $hospitalBedsByRequestedTimeWorstCase = intval($availableBeds - $severeCasesByRequestedTimeWorstCase);
+    
     $data = [
       "data" => $data, // input data
       "impact" => [
         "currentlyInfected" => $currentlyInfected,
-        "infectionsByRequestedTime" => $currentlyInfected * 2 ^ $factor,
+        "infectionsByRequestedTime" => $infectionsByRequestedTime,
+        "severeCasesByRequestedTime" =>  $severeCasesByRequestedTime,
+        "hospitalBedsByRequestedTime" => $hospitalBedsByRequestedTime,
+        
       ], // best case
       "severeImpact" => [
-        $currentlyInfectedWorstCase = $data["reportedCases"] * 50,
         "currentlyInfected" => $currentlyInfectedWorstCase,
-        "infectionsByRequestedTime" => $currentlyInfectedWorstCase * 2 ^ $factor,
+        "infectionsByRequestedTime" => $infectionsByRequestedTimeWorstCase,
+        "severeCasesByRequestedTime" => intval(0.15 * $infectionsByRequestedTimeWorstCase),
+        "hospitalBedsByRequestedTime" => $hospitalBedsByRequestedTimeWorstCase,
       ] // worst case
     ];
     // return $data->reportedCases;
