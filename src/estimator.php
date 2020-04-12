@@ -18,23 +18,33 @@
     $takenBeds = $totalBeds * 0.65;
     $availableBeds = $totalBeds - $takenBeds;
     
-    if ($data["periodType"] == "days")
+    if ($data["periodType"] == "weeks")
     {
-      $factor = $data["timeToElapse"] / 3;
+      // Converts the time in weeks to days
+      $data["timeToElapse"] = intval($data["timeToElapse"] * 7);
+
 
     }
-    elseif ($data["periodType"] == "weeks")
+    elseif ($data["periodType"] == "months")
     {
-      //
+      // Converts the time in months to days
+      $data["timeToElapse"] = intval($data["timeToElapse"] * 30);
+
+    }
+    else
+    {
+      $data["timeToElapse"] = intval($data["timeToElapse"]);
     }
     
+    $factor = $data["timeToElapse"] / 3;
     $currentlyInfected = $data["reportedCases"] * 10;
     $infectionsByRequestedTime = intval($currentlyInfected * 2 ^ $factor);
     $severeCasesByRequestedTime = intval(0.15 * $infectionsByRequestedTime);
     $hospitalBedsByRequestedTime = intval($availableBeds - $severeCasesByRequestedTime);
     $casesForICUByRequestedTime = intval(0.05 * $infectionsByRequestedTime);
     $casesForVentilatorsByRequestedTime = intval(0.02 * $infectionsByRequestedTime);
-    $dollarsInFlight = intval($infectionsByRequestedTime * 0.65 * 1.5);
+    $dollarsInFlight = intval($infectionsByRequestedTime * $data["region"]["avgDailyIncomePopulation"] * $data["region"]["avgDailyIncomeInUSD"] / $data["timeToElapse"]);
+    //$dollarsInFlight = intval($dollars / $data["timeToElapse"]);
     
 
     $currentlyInfectedWorstCase = $data["reportedCases"] * 50;
@@ -43,7 +53,8 @@
     $hospitalBedsByRequestedTimeWorstCase = intval($availableBeds - $severeCasesByRequestedTimeWorstCase);
     $casesForICUByRequestedTimeWorstCase = intval(0.05 * $infectionsByRequestedTimeWorstCase);
     $casesForVentilatorsByRequestedTimeWorstCase = intval(0.02 * $infectionsByRequestedTimeWorstCase);
-    $dollarsInFlightWorstCase = intval($infectionsByRequestedTimeWorstCase * 0.65 * 1.5);
+    $dollarsInFlightWorstCase = intval($infectionsByRequestedTimeWorstCase * $data["region"]["avgDailyIncomePopulation"] * $data["region"]["avgDailyIncomeInUSD"] / $data["timeToElapse"]);
+
     $data = [
       "data" => $data, // input data
       "impact" => [
@@ -68,7 +79,7 @@
     ];
     // return $data->reportedCases;
     
-    return $data;
+    return json_encode($data);
   }
 
   /**
@@ -84,6 +95,6 @@
 
 $content = trim(file_get_contents("php://input"));
 $decoded = json_decode($content, true);
-//header('Content-Type: application/json');
+header('Content-Type: application/json');
 
-//echo covid19ImpactEstimator($decoded);
+echo covid19ImpactEstimator($decoded);
