@@ -5,7 +5,7 @@ error_reporting(E_ALL);
 
 
 
-class estimator {
+
 
   /**
    * Estimator function
@@ -14,7 +14,7 @@ class estimator {
    * @return string|null
    */
   
-  public function covid19ImpactEstimator($data)
+  function covid19ImpactEstimator($data)
   {
     
     $totalBeds = $data["totalHospitalBeds"];
@@ -68,7 +68,7 @@ class estimator {
   /**
    * Gives out the Data.
    */
-}
+
 
 
 
@@ -79,9 +79,9 @@ if ($_SERVER["CONTENT_TYPE"] != 'application/json')
   header($_SERVER["SERVER_PROTOCOL"] . "500 Internal Server Error");
   exit();
 }
-$new_estimation = new estimator;
+
 $content = trim(file_get_contents("php://input"));
 $decoded = json_decode($content, true);
 header('Content-Type: application/json');
 
-echo $new_estimation->covid19ImpactEstimator($decoded);
+echo covid19ImpactEstimator($decoded);
