@@ -109,12 +109,7 @@ function severeCasesByRequestedTime($currentlyInfected, $timeToElapse, $periodTy
 
 function dollarsInFlight($infectionsByRequestedTime, $avgDailyIncomePopulation, $avgDailyIncomeInUSD, $periodType, $timeToElapse)
 {
-  $dollarsInFlight = ($infectionsByRequestedTime * $avgDailyIncomePopulation * $avgDailyIncomeInUSD) / normalizeDate($periodType, $timeToElapse);
+  $dollarsInFlight = ($infectionsByRequestedTime * $avgDailyIncomePopulation * $avgDailyIncomeInUSD) / 3;
   return $dollarsInFlight;
 }
 
-$content = trim(file_get_contents("php://input"));
-
-$decoded = json_decode($content, true);
-header('Content-Type: application/json');
-echo covid19ImpactEstimator($decoded);
