@@ -25,7 +25,7 @@ function covid19ImpactEstimator($data)
     ]
   ];
 
-  return $data;
+  return json_encode($data);
   
 }
 
@@ -60,11 +60,11 @@ function normalizeDate($periodType, $timeToElapse)
 // infectionsByRequestedTime function
 function infectionsByRequestedTime($currentlyInfected, $timeToElapse, $periodType)
 {
-  $factor = normalizeDate($periodType, $timeToElapse) / 3;
+  $factor = intval(normalizeDate($periodType, $timeToElapse) / 3);
   return $currentlyInfected * pow(2, $factor);
 }
 $content = trim(file_get_contents("php://input"));
 
 $decoded = json_decode($content, true);
-//header('Content-Type: application/json');
-//echo covid19ImpactEstimator($decoded);
+header('Content-Type: application/json');
+echo covid19ImpactEstimator($decoded);
