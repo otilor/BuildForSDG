@@ -1,7 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 
 
 
@@ -74,14 +71,10 @@ error_reporting(E_ALL);
 
 
 // For errors
-if ($_SERVER["CONTENT_TYPE"] != 'application/json')
-{
-  header($_SERVER["SERVER_PROTOCOL"] . "500 Internal Server Error");
-  exit();
-}
+
 
 $content = trim(file_get_contents("php://input"));
 $decoded = json_decode($content, true);
-header('Content-Type: application/json');
+
 
 echo covid19ImpactEstimator($decoded);
