@@ -11,31 +11,47 @@ function covid19ImpactEstimator($data)
   $timeToElapse = $data["timeToElapse"];
   $totalBeds = $data["totalHospitalBeds"];
   $periodType = $data["periodType"];
+
+  $avgDailyIncomePopulation = $data["region"]["avgDailyIncomePopulation"];
+  $avgDailyIncomeInUSD = $data["region"]["avgDailyIncomeInUSD"];
   
 
       $severeCasesByRequestedTime = intval(severeCasesByRequestedTime($currentlyInfected, $timeToElapse, $periodType));
       $severeCasesByRequestedTimeWorstCase = intval(severeCasesByRequestedTime($currentlyInfectedWorstCase, $timeToElapse, $periodType));
   
       $availableBeds = 0.35 * $totalBeds;
+      $hospitalBedsByRequestedTime = intval($availableBeds - $severeCasesByRequestedTime);
+      $hospitalBedsByRequestedTimeWorstCase = intval($availableBeds - $severeCasesByRequestedTimeWorstCase);
+
+
+      $infectedByRequestedTime = intval(infectionsByRequestedTime($currentlyInfected, $timeToElapse, $periodType));
+      $infectedByRequestedTimeWorstCase = intval(infectionsByRequestedTime($currentlyInfectedWorstCase, $timeToElapse, $periodType));
+
+
+      $casesForICUByRequestedTime = 0.05 * $infectedByRequestedTime;
+      $casesForICUByRequestedTimeWorstCase = 0.05 * $infectedByRequestedTimeWorstCase;
 
   $data = [
     "data" => $data,
     "impact" => [
       "currentlyInfected" => $currentlyInfected,
-      "infectionsByRequestedTime" => intval(infectionsByRequestedTime($currentlyInfected, $timeToElapse, $periodType)),
+      "infectionsByRequestedTime" => $infectedByRequestedTime,
       "severeCasesByRequestedTime" => $severeCasesByRequestedTime,
-      "hospitalBedsByRequestedTime" => $availableBeds - $severeCasesByRequestedTime
+      "hospitalBedsByRequestedTime" => $hospitalBedsByRequestedTime,
+      "casesForICUByRequestedTime" => $casesForICUByRequestedTime,
+      
     ],
     "severeImpact" => [
       "currentlyInfected" => $currentlyInfectedWorstCase,
-      "infectionsByRequestedTime" => intval(infectionsByRequestedTime($currentlyInfectedWorstCase, $timeToElapse, $periodType)),
+      "infectionsByRequestedTime" => $infectedByRequestedTimeWorstCase,
       "severeCasesByRequestedTime" => $severeCasesByRequestedTimeWorstCase,
-      "hospitalBedsByRequestedTime" => $availableBeds - $severeCasesByRequestedTimeWorstCase
+      "hospitalBedsByRequestedTime" => $hospitalBedsByRequestedTimeWorstCase,
+      "casesForICUByRequestedTime" => $casesForICUByRequestedTimeWorstCase
       
     ]
   ];
 
-  return $data;
+  return json_encode($data);
   
 }
 
@@ -82,5 +98,5 @@ function severeCasesByRequestedTime($currentlyInfected, $timeToElapse, $periodTy
 $content = trim(file_get_contents("php://input"));
 
 $decoded = json_decode($content, true);
-//header('Content-Type: application/json');
-//echo covid19ImpactEstimator($decoded);
+header('Content-Type: application/json');
+echo covid19ImpactEstimator($decoded);
