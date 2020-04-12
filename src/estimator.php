@@ -25,7 +25,7 @@ function covid19ImpactEstimator($data)
     ]
   ];
 
-  return json_encode($data);
+  return $data;
   
 }
 
@@ -66,5 +66,5 @@ function infectionsByRequestedTime($currentlyInfected, $timeToElapse, $periodTyp
 $content = trim(file_get_contents("php://input"));
 
 $decoded = json_decode($content, true);
-header('Content-Type: application/json');
-echo covid19ImpactEstimator($decoded);
+//header('Content-Type: application/json');
+//echo covid19ImpactEstimator($decoded);
