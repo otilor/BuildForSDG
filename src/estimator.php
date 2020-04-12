@@ -24,29 +24,41 @@ function covid19ImpactEstimator($data)
       $hospitalBedsByRequestedTimeWorstCase = intval($availableBeds - $severeCasesByRequestedTimeWorstCase);
 
 
-      $infectedByRequestedTime = intval(infectionsByRequestedTime($currentlyInfected, $timeToElapse, $periodType));
-      $infectedByRequestedTimeWorstCase = intval(infectionsByRequestedTime($currentlyInfectedWorstCase, $timeToElapse, $periodType));
+      $infectionsByRequestedTime = intval(infectionsByRequestedTime($currentlyInfected, $timeToElapse, $periodType));
+      $infectionsByRequestedTimeWorstCase = intval(infectionsByRequestedTime($currentlyInfectedWorstCase, $timeToElapse, $periodType));
 
 
-      $casesForICUByRequestedTime = 0.05 * $infectedByRequestedTime;
-      $casesForICUByRequestedTimeWorstCase = 0.05 * $infectedByRequestedTimeWorstCase;
+      $casesForICUByRequestedTime = intval(0.05 * $infectionsByRequestedTime);
+      $casesForICUByRequestedTimeWorstCase = intval(0.05 * $infectionsByRequestedTimeWorstCase);
+
+
+      $casesForVentilatorsByRequestedTime = intval(0.02 * $infectionsByRequestedTime);;
+      $casesForVentilatorsByRequestedTimeWorstCase = intval(0.02 * $infectionsByRequestedTimeWorstCase);
+
+
+      $dollarsInFlight = intval(dollarsInFlight($infectionsByRequestedTime, $avgDailyIncomePopulation, $avgDailyIncomeInUSD, $periodType, $timeToElapse));
+      $dollarsInFlightWorstCase = intval(dollarsInFlight($infectionsByRequestedTimeWorstCase, $avgDailyIncomePopulation, $avgDailyIncomeInUSD, $periodType, $timeToElapse));
 
   $data = [
     "data" => $data,
     "impact" => [
       "currentlyInfected" => $currentlyInfected,
-      "infectionsByRequestedTime" => $infectedByRequestedTime,
+      "infectionsByRequestedTime" => $infectionsByRequestedTime,
       "severeCasesByRequestedTime" => $severeCasesByRequestedTime,
       "hospitalBedsByRequestedTime" => $hospitalBedsByRequestedTime,
       "casesForICUByRequestedTime" => $casesForICUByRequestedTime,
+      "casesForVentilatorsByRequestedTime" => $casesForVentilatorsByRequestedTime,
+      "dollarsInFlight" => $dollarsInFlight
       
     ],
     "severeImpact" => [
       "currentlyInfected" => $currentlyInfectedWorstCase,
-      "infectionsByRequestedTime" => $infectedByRequestedTimeWorstCase,
+      "infectionsByRequestedTime" => $infectionsByRequestedTimeWorstCase,
       "severeCasesByRequestedTime" => $severeCasesByRequestedTimeWorstCase,
       "hospitalBedsByRequestedTime" => $hospitalBedsByRequestedTimeWorstCase,
-      "casesForICUByRequestedTime" => $casesForICUByRequestedTimeWorstCase
+      "casesForICUByRequestedTime" => $casesForICUByRequestedTimeWorstCase,
+      "casesForVentilatorsByRequestedTime" => $casesForVentilatorsByRequestedTimeWorstCase,
+      "dollarsInFlight" => $dollarsInFlightWorstCase
       
     ]
   ];
@@ -93,6 +105,12 @@ function severeCasesByRequestedTime($currentlyInfected, $timeToElapse, $periodTy
 {
   $severeCasesByRequestedTime = 0.15 * intval(infectionsByRequestedTime($currentlyInfected, $timeToElapse, $periodType));
   return $severeCasesByRequestedTime;
+}
+
+function dollarsInFlight($infectionsByRequestedTime, $avgDailyIncomePopulation, $avgDailyIncomeInUSD, $periodType, $timeToElapse)
+{
+  $dollarsInFlight = ($infectionsByRequestedTime * $avgDailyIncomePopulation * $avgDailyIncomeInUSD) / normalizeDate($periodType, $timeToElapse);
+  return $dollarsInFlight;
 }
 
 $content = trim(file_get_contents("php://input"));
