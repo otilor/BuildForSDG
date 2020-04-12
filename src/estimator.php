@@ -79,7 +79,7 @@
     ];
     // return $data->reportedCases;
     
-    return json_encode($data);
+    return $data;
   }
 
   /**
@@ -95,6 +95,6 @@
 
 $content = trim(file_get_contents("php://input"));
 $decoded = json_decode($content, true);
-header('Content-Type: application/json');
+//header('Content-Type: application/json');
 
-echo covid19ImpactEstimator($decoded);
+//echo covid19ImpactEstimator($decoded);
