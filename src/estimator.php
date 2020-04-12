@@ -18,9 +18,18 @@
     $takenBeds = $totalBeds * 0.65;
     $availableBeds = $totalBeds - $takenBeds;
     
-    $factor = 9;
+    if ($data["periodType"] == "days")
+    {
+      $factor = $data["timeToElapse"] / 3;
+
+    }
+    elseif ($data["periodType"] == "weeks")
+    {
+      //
+    }
+    
     $currentlyInfected = $data["reportedCases"] * 10;
-    $infectionsByRequestedTime = $currentlyInfected * 2 ^ $factor;
+    $infectionsByRequestedTime = intval($currentlyInfected * 2 ^ $factor);
     $severeCasesByRequestedTime = intval(0.15 * $infectionsByRequestedTime);
     $hospitalBedsByRequestedTime = intval($availableBeds - $severeCasesByRequestedTime);
     $casesForICUByRequestedTime = intval(0.05 * $infectionsByRequestedTime);
@@ -59,7 +68,7 @@
     ];
     // return $data->reportedCases;
     
-    return $data;
+    return json_encode($data);
   }
 
   /**
@@ -75,6 +84,6 @@
 
 $content = trim(file_get_contents("php://input"));
 $decoded = json_decode($content, true);
-
+header('Content-Type: application/json');
 
 echo covid19ImpactEstimator($decoded);
