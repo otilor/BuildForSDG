@@ -9,23 +9,33 @@ function covid19ImpactEstimator($data)
   $currentlyInfectedWorstCase = currentlyInfected($reportedCases, 50);
 
   $timeToElapse = $data["timeToElapse"];
+  $totalBeds = $data["totalHospitalBeds"];
   $periodType = $data["periodType"];
   
+
+      $severeCasesByRequestedTime = intval(severeCasesByRequestedTime($currentlyInfected, $timeToElapse, $periodType));
+      $severeCasesByRequestedTimeWorstCase = intval(severeCasesByRequestedTime($currentlyInfectedWorstCase, $timeToElapse, $periodType));
   
+      $availableBeds = 0.35 * $totalBeds;
+
   $data = [
     "data" => $data,
     "impact" => [
       "currentlyInfected" => $currentlyInfected,
-      "infectionsByRequestedTime" => intval(infectionsByRequestedTime($currentlyInfected, $timeToElapse, $periodType))
-
+      "infectionsByRequestedTime" => intval(infectionsByRequestedTime($currentlyInfected, $timeToElapse, $periodType)),
+      "severeCasesByRequestedTime" => $severeCasesByRequestedTime,
+      "hospitalBedsByRequestedTime" => $availableBeds - $severeCasesByRequestedTime
     ],
     "severeImpact" => [
       "currentlyInfected" => $currentlyInfectedWorstCase,
-      "infectionsByRequestedTime" => intval(infectionsByRequestedTime($currentlyInfectedWorstCase, $timeToElapse, $periodType))
+      "infectionsByRequestedTime" => intval(infectionsByRequestedTime($currentlyInfectedWorstCase, $timeToElapse, $periodType)),
+      "severeCasesByRequestedTime" => $severeCasesByRequestedTimeWorstCase,
+      "hospitalBedsByRequestedTime" => $availableBeds - $severeCasesByRequestedTimeWorstCase
+      
     ]
   ];
 
-  return $data;
+  return json_encode($data);
   
 }
 
@@ -63,6 +73,12 @@ function infectionsByRequestedTime($currentlyInfected, $timeToElapse, $periodTyp
   $factor = intval(normalizeDate($periodType, $timeToElapse) / 3);
   return $currentlyInfected * pow(2, $factor);
 }
+function severeCasesByRequestedTime($currentlyInfected, $timeToElapse, $periodType)
+{
+  $severeCasesByRequestedTime = 0.15 * intval(infectionsByRequestedTime($currentlyInfected, $timeToElapse, $periodType));
+  return $severeCasesByRequestedTime;
+}
+
 $content = trim(file_get_contents("php://input"));
 
 $decoded = json_decode($content, true);
