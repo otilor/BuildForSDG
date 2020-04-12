@@ -58,7 +58,7 @@
       ] // worst case
     ];
     // return $data->reportedCases;
-    $data = json_encode($data);
+    
     return $data;
   }
 
